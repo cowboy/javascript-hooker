@@ -11,7 +11,7 @@ var hooker = require('lib/hooker');
 hooker.hook(Math, "max", function() {
   console.log(arguments.length + " arguments passed");
 });
-Math.max(5, 6, 7) // 7 (logs: "3 arguments passed")
+Math.max(5, 6, 7) // logs: "3 arguments passed", returns 7
 ```
 
 Or in the browser:
@@ -22,7 +22,7 @@ Or in the browser:
 hook(Math, "max", function() {
   console.log(arguments.length + " arguments passed");
 });
-Math.max(5, 6, 7) // 7 (logs: "3 arguments passed")
+Math.max(5, 6, 7) // logs: "3 arguments passed", returns 7
 </script>
 ```
 
@@ -37,7 +37,7 @@ this.exports = Bocoup.utils;
 Bocoup.utils.hook(Math, "max", function() {
   console.log(arguments.length + " arguments passed");
 });
-Math.max(5, 6, 7) // 7 (logs: "3 arguments passed")
+Math.max(5, 6, 7) // logs: "3 arguments passed", returns 7
 </script>
 ```
 
@@ -48,7 +48,7 @@ var hooker = require('lib/hooker');
 hooker.hook(Math, "max", function() {
   console.log(arguments.length + " arguments passed");
 });
-Math.max(5, 6, 7) // 7 (logs: "3 arguments passed")
+Math.max(5, 6, 7) // logs: "3 arguments passed", returns 7
 
 hooker.unhook(Math, "max");
 Math.max(5, 6, 7) // 7
@@ -61,6 +61,29 @@ hooker.hook(Math, "max", function() {
 });
 Math.max(5, 6, 7) // 7
 Math.max() // 9000
+
+// There are a few options too (see the unit tests / source for more).
+
+hooker.hook(Math, "max", {once: true}, function() {
+  console.log("Init something here, first run only");
+});
+Math.max(5, 6, 7) // logs: Init something here, first run only
+Math.max(5, 6, 7) // no logging
+
+// Filter `this` and arguments through a function.
+hooker.hook(Math, "max", {filter: true}, function() {
+  var args = [].map.call(arguments, function(num) {
+    return num * 2;
+  });
+  return [this, args]; // [thisValue, arguments]
+});
+Math.max(5, 6, 7) // 14
+
+// Filter the original function's result.
+hooker.hook(Math, "max", {post: true, filter: true}, function(result) {
+  return result * 100;
+});
+Math.max(5, 6, 7) // 700
 ```
 
 ## Documentation

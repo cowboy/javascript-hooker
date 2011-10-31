@@ -9,7 +9,7 @@ exports['hook'] = {
       this.execOrder.push("orig");
       return this.prop + a + b;
     };
-    this.result = null;
+    this.result = undefined;
     this.newFunc1 = function(a, b) {
       this.execOrder.push("newFunc1");
       this.args = [a, b];
@@ -21,24 +21,37 @@ exports['hook'] = {
     };
     done();
   },
-  'hook.orig, unhook': function(test) {
-    test.expect(6);
+  'hook.orig': function(test) {
+    test.expect(1);
     var orig = this.orig;
     hooker.hook(this, "orig", this.newFunc1);
     test.strictEqual(hooker.hook.orig(this, "orig"), orig, "should return the original function.");
-    test.deepEqual(this.execOrder, [], "nothing should have executed yet.");
 
-    this.result = undefined;
+    test.done();
+  },
+  'unhook': function(test) {
+    test.expect(3);
+    var orig = this.orig;
+    hooker.hook(this, "orig", this.newFunc1);
 
     this.execOrder = [];
     test.strictEqual(this.orig(2, 3), 6, "newFunc1 returned undefined, so it should return the original function's result.");
     test.deepEqual(this.execOrder, ["newFunc1", "orig"], "functions should have executed once each, newFunc1 should execute first.");
 
     hooker.unhook(this, "orig");
+    test.strictEqual(this.orig, orig, "should have unhooked, restoring the original function");
+
+    test.done();
+  },
+  'once': function(test) {
+    test.expect(3);
+    var orig = this.orig;
+    hooker.hook(this, "orig", {once: true}, this.newFunc1);
 
     this.execOrder = [];
-    test.strictEqual(this.orig(2, 3), 6, "should just invoke the original function");
-    test.deepEqual(this.execOrder, ["orig"], "only the original, unhooked function, should execute.");
+    test.strictEqual(this.orig(2, 3), 6, "newFunc1 returned undefined, so it should return the original function's result.");
+    test.deepEqual(this.execOrder, ["newFunc1", "orig"], "functions should have executed once each, newFunc1 should execute first.");
+    test.strictEqual(this.orig, orig, "should have unhooked, restoring the original function");
 
     test.done();
   },
