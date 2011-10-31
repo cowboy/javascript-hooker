@@ -43,7 +43,7 @@ Math.max(5, 6, 7) // logs: "3 arguments passed", returns 7
 
 ## Documentation
 
-### `hooker.hook`
+### hooker.hook
 Monkey-patch (hook) a method of an object.
 #### Signature:
 `hooker.hook(object, methodName, [options | prehookFunction])`
@@ -52,31 +52,31 @@ Monkey-patch (hook) a method of an object.
 * `post` - (Function) a post-hook function to be executed after the original function.
 * `once` - (Boolean) if true, auto-unhook the function after the first execution
 
-### `hooker.unhook`
+### hooker.unhook
 Un-monkey-patch (unhook) a method of an object.
 #### Signature:
 `hooker.unhook(object, methodName)`
 
-### `hooker.orig`
+### hooker.orig
 Get a reference to the original method from a hooked function.
 #### Signature:
 `hooker.orig(object, methodName)`
 
-### `hooker.override`
+### hooker.override
 When a pre- or post-hook returns the result of this function, the value
 passed will be used in place of the original function's return value. Any
 post-hook override value will take precedence over a pre-hook override value.
 #### Signature:
 `hooker.override(value)`
 
-### `hooker.preempt`
+### hooker.preempt
 When a pre-hook returns the result of this function, the value passed will
 be used in place of the original function's return value, and the original
 function will NOT be executed.
 #### Signature:
 `hooker.preempt(value)`
 
-### `hooker.filter`
+### hooker.filter
 When a pre-hook returns the result of this function, the context and
 arguments passed will be applied into the original function.
 #### Signature:
