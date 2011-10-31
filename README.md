@@ -65,10 +65,10 @@ Math.max() // 9000
 // There are a few options too (see the unit tests / source for more).
 
 hooker.hook(Math, "max", {once: true}, function() {
-  console.log("Init something here, first run only");
+  console.log("Init something here");
 });
-Math.max(5, 6, 7) // logs: Init something here, first run only
-Math.max(5, 6, 7) // no logging
+Math.max(5, 6, 7) // logs: "Init something here", returns 7
+Math.max(5, 6, 7) // 7
 
 // Filter `this` and arguments through a function.
 hooker.hook(Math, "max", {filter: true}, function() {
