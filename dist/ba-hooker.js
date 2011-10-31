@@ -1,4 +1,4 @@
-/* JavaScript Hooker - v0.2.0 - 10/31/2011
+/* JavaScript Hooker - v0.2.1 - 10/31/2011
  * http://github.com/cowboy/javascript-hooker
  * Copyright (c) 2011 "Cowboy" Ben Alman; Licensed MIT, GPL */
 
@@ -16,7 +16,8 @@
 
   // When a pre- or post-hook returns the result of this function, the value
   // passed will be used in place of the original function's return value. Any
-  // post-hook value will take precedence over a pre-hook value.
+  // post-hook override value will take precedence over a pre-hook override
+  // value.
   exports.override = function(value) {
     return new HookerOverride(value);
   };
@@ -35,16 +36,16 @@
   };
 
   // Monkey-patch (hook) a method of an object.
-  exports.hook = function(obj, prop, options) {
+  exports.hook = function(obj, methodName, options) {
     // If just a function is passed instead of an options hash, use that as a
     // pre-hook function.
     if (typeof options === "function") {
       options = {pre: options};
     }
     // The original (current) method.
-    var orig = obj[prop];
+    var orig = obj[methodName];
     // Re-define the method.
-    obj[prop] = function() {
+    obj[methodName] = function() {
       var result, origResult, tmp;
       // If a pre-hook function was specified, invoke it in the current context
       // with the passed-in arguments, and store its result.
@@ -83,21 +84,26 @@
       }
       // Unhook if the "once" option was specified.
       if (options.once) {
-        exports.unhook(obj, prop);
+        exports.unhook(obj, methodName);
       }
       // Return the result!
       return result;
     };
     // Store a reference to the original method as a property on the new one.
-    obj[prop].orig = orig;
+    obj[methodName]._orig = orig;
+  };
+  
+  // Get a reference to the original method from a hooked function.
+  exports.orig = function(obj, methodName) {
+    return obj[methodName]._orig;
   };
 
   // Un-monkey-patch (unhook) a method of an object.
-  exports.unhook = function(obj, prop) {
-    var orig = obj[prop].orig;
+  exports.unhook = function(obj, methodName) {
+    var orig = exports.orig(obj, methodName);
     // Only unhook if it hasn't already been unhooked.
     if (orig) {
-      obj[prop] = orig;
+      obj[methodName] = orig;
     }
   };
 }(typeof exports === "object" && exports || this));

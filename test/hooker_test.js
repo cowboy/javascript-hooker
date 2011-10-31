@@ -16,11 +16,11 @@ exports['hook'] = {
     
     done();
   },
-  'hook.orig': function(test) {
+  'orig': function(test) {
     test.expect(1);
     var orig = this.add;
     hooker.hook(this, "add", function() {});
-    test.strictEqual(this.add.orig, orig, "should reference the original function.");
+    test.strictEqual(hooker.orig(this, "add"), orig, "should return a refernce to the original function.");
     test.done();
   },
   'unhook': function(test) {
