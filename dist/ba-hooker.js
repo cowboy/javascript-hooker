@@ -1,79 +1,103 @@
-/* JavaScript Hooker - v0.1.0 - 10/31/2011
+/* JavaScript Hooker - v0.2.0 - 10/31/2011
  * http://github.com/cowboy/javascript-hooker
  * Copyright (c) 2011 "Cowboy" Ben Alman; Licensed MIT, GPL */
 
-(function (exports) {
- // Monkey-patch a function property of an object.
- exports.hook = function(obj, prop, options, callback) {
-   // If options object is omitted, shuffle arguments.
-   if (typeof options === "function") {
-     callback = options;
-     options = {};
-   }
-   // The original function.
-   var orig = obj[prop];
+(function(exports) {
+  // Since undefined can be overwritten, an internal reference is kept.
+  var undef;
+  // Get an array from an array-like object with slice.call(arrayLikeObject).
+  var slice = [].slice;
 
-   if (options.post) {
-     // Execute callback after original is executed.
-     obj[prop] = function() {
-       // Unbind if once option specified.
-       if (options.once) { exports.unhook(obj, prop); }
-       // Invoke original function.
-       var result = orig.apply(this, arguments);
-       if (options.filter) {
-         // In filter mode, pass orig's return value into callback as its
-         // first argument, returning its value.
-         return callback.call(this, result);
-       }
-       // Call callback.
-       var callbackResult = callback.apply(this, arguments);
-       // Return callback's result if not undefined, otherwise original
-       // function's result.
-       return callbackResult !== undefined ? callbackResult : result;
-     };
-   } else {
-     // Execute callback before original is executed. If callback returns a
-     // value, return that, otherwise invoke original function, returning its
-     // result.
-     obj[prop] = function() {
-       // Unbind if once option specified.
-       if (options.once) { exports.unhook(obj, prop); }
-       // Call callback.
-       var result = callback.apply(this, arguments);
-       
-       if (options.filter) {
-         // In filter mode, pass callback's return value, which must be a
-         // two-element array: [thisValue, argumentsArray] into the original
-         // function, returning its value.
-         return orig.apply(result[0], result[1]);
-       } else if (result !== undefined) {
-         // Otherwise, if callback returned a value...
-         if (!options.preempt) {
-           // Execute the original function if not preempting.
-           orig.apply(this, arguments);
-         }
-         // Return callback's result.
-         return result;
-       }
-       // Otherwise, return original function's result.
-       return orig.apply(this, arguments);
-     };
-   }
-   // Set property on new function to allow unhooking.
-   obj[prop]._orig = orig;
- };
+  // I can't think of a better way to ensure a value is a specific type other
+  // than to create instances and use the `instanceof` operator.
+  function HookerOverride(v) { this.value = v; }
+  function HookerPreempt(v) { this.value = v; }
+  function HookerFilter(c, a) { this.context = c; this.args = a; }
 
- // Get the original function from a hooked function.
- exports.hook.orig = function(obj, prop) {
-   return obj[prop]._orig;
- };
+  // When a pre- or post-hook returns the result of this function, the value
+  // passed will be used in place of the original function's return value. Any
+  // post-hook value will take precedence over a pre-hook value.
+  exports.override = function(value) {
+    return new HookerOverride(value);
+  };
 
- // Un-monkey-patch a function property of an object.
- exports.unhook = function(obj, prop) {
-   var orig = exports.hook.orig(obj, prop);
-   // If there's an original function, restore it.
-   if (orig) {
-     obj[prop] = orig;
-   }
- };
+  // When a pre-hook returns the result of this function, the value passed will
+  // be used in place of the original function's return value, and the original
+  // function will NOT be executed.
+  exports.preempt = function(value) {
+    return new HookerPreempt(value);
+  };
+
+  // When a pre-hook returns the result of this function, the context and
+  // arguments passed will be applied into the original function.
+  exports.filter = function(context, args) {
+    return new HookerFilter(context, args);
+  };
+
+  // Monkey-patch (hook) a method of an object.
+  exports.hook = function(obj, prop, options) {
+    // If just a function is passed instead of an options hash, use that as a
+    // pre-hook function.
+    if (typeof options === "function") {
+      options = {pre: options};
+    }
+    // The original (current) method.
+    var orig = obj[prop];
+    // Re-define the method.
+    obj[prop] = function() {
+      var result, origResult, tmp;
+      // If a pre-hook function was specified, invoke it in the current context
+      // with the passed-in arguments, and store its result.
+      if (options.pre) {
+        result = options.pre.apply(this, arguments);
+      }
+
+      if (result instanceof HookerFilter) {
+        // If the pre-hook returned hooker.filter(context, args), invoke the
+        // original function with that context and arguments, and store its
+        // result.
+        origResult = result = orig.apply(result.context, result.args);
+      } else if (result instanceof HookerPreempt) {
+        // If the pre-hook returned hooker.preempt(value) just use the passed
+        // value and don't execute the original function.
+        origResult = result = result.value;
+      } else {
+        // Invoke the original function in the current context with the
+        // passed-in arguments, and store its result.
+        origResult = orig.apply(this, arguments);
+        // If the pre-hook returned hooker.override(value), use the passed
+        // value, otherwise use the original function's result.
+        result = result instanceof HookerOverride ? result.value : origResult;
+      }
+
+      if (options.post) {
+        // If a post-hook function was specified, invoke it in the current
+        // context, passing in the result of the original function as the first
+        // argument, followed by any passed-in arguments.
+        tmp = options.post.apply(this, [origResult].concat(slice.call(arguments)));
+        if (tmp instanceof HookerOverride) {
+          // If the post-hook returned hooker.override(value), use the passed
+          // value, otherwise use the previously computed result.
+          result = tmp.value;
+        }
+      }
+      // Unhook if the "once" option was specified.
+      if (options.once) {
+        exports.unhook(obj, prop);
+      }
+      // Return the result!
+      return result;
+    };
+    // Store a reference to the original method as a property on the new one.
+    obj[prop].orig = orig;
+  };
+
+  // Un-monkey-patch (unhook) a method of an object.
+  exports.unhook = function(obj, prop) {
+    var orig = obj[prop].orig;
+    // Only unhook if it hasn't already been unhooked.
+    if (orig) {
+      obj[prop] = orig;
+    }
+  };
 }(typeof exports === "object" && exports || this));
