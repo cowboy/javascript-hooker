@@ -44,23 +44,33 @@ Math.max(5, 6, 7) // logs: "3 arguments passed", returns 7
 ## Documentation
 
 ### hooker.hook
-Monkey-patch (hook) a method of an object.
+Monkey-patch (hook) one or more methods of an object.
 #### Signature:
-`hooker.hook(object, methodName, [options | prehookFunction])`
+`hooker.hook(object, [ props, ] [options | prehookFunction])`
+#### `props`
+The optional `props` argument can be a method name, array of method names or null. If null (or omitted), all methods of `object` will be hooked.
 #### `options`
-* `pre` - (Function) a pre-hook function to be executed before the original function.
-* `post` - (Function) a post-hook function to be executed after the original function.
-* `once` - (Boolean) if true, auto-unhook the function after the first execution
+* `pre` - (Function) a pre-hook function to be executed before the original function. Arguments passed into the method will be passed into the pre-hook function as well.
+* `post` - (Function) a post-hook function to be executed after the original function. The original function's result is passed into the post-hook function as its first argument, followed by the method arguments.
+* `once` - (Boolean) if true, auto-unhook the function after the first execution.
+* `passName` - (Boolean) if true, pass the name of the method into the pre-hook function as its first arg (preceding all other arguments), and into the post-hook function as the second arg (after result but preceding all other arguments).
+
+#### Returns:
+An array of hooked method names.
 
 ### hooker.unhook
-Un-monkey-patch (unhook) a method of an object.
+Un-monkey-patch (unhook) one or more methods of an object.
 #### Signature:
-`hooker.unhook(object, methodName)`
+`hooker.unhook(object [, props ])`
+#### `props`
+The optional `props` argument can be a method name, array of method names or null. If null (or omitted), all methods of `object` will be unhooked.
+#### Returns:
+An array of unhooked method names.
 
 ### hooker.orig
 Get a reference to the original method from a hooked function.
 #### Signature:
-`hooker.orig(object, methodName)`
+`hooker.orig(object, props)`
 
 ### hooker.override
 When a pre- or post-hook returns the result of this function, the value
