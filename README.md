@@ -48,7 +48,7 @@ Monkey-patch (hook) one or more methods of an object.
 #### Signature:
 `hooker.hook(object, [ props, ] [options | prehookFunction])`
 #### `props`
-The optional `props` argument can be a method name, array of method names or null. If null (or omitted), all methods of `object` will be hooked.
+The optional `props` argument can be a method name, array of method names or null. If null (or omitted), all enumerable methods of `object` will be hooked.
 #### `options`
 * `pre` - (Function) a pre-hook function to be executed before the original function. Arguments passed into the method will be passed into the pre-hook function as well.
 * `post` - (Function) a post-hook function to be executed after the original function. The original function's result is passed into the post-hook function as its first argument, followed by the method arguments.
@@ -144,6 +144,30 @@ hooker.hook(Math, "max", {
   }
 });
 Math.max(5, 6, 7) // 700
+
+// Hook every Math method. Note: if Math's methods were enumerable, the second
+// argument could be omitted. Since they aren't, an array of properties to hook
+// must be explicitly passed. Non-method properties will be skipped.
+// See a more generic example here: http://bit.ly/vvJlrS
+hooker.hook(Math, Object.getOwnPropertyNames(Math), {
+  passName: true,
+  pre: function(name) {
+    console.log("=> Math." + name, [].slice.call(arguments, 1));
+  },
+  post: function(result, name) {
+    console.log("<= Math." + name, result);
+  }
+});
+
+var result = Math.max(5, 6, 7);
+// => Math.max [ 5, 6, 7 ]
+// <= Math.max 7
+result // 7
+
+result = Math.ceil(3.456);
+// => Math.ceil [ 3.456 ]
+// <= Math.ceil 4
+result // 4
 ```
 
 ## Contributing
