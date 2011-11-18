@@ -3,7 +3,7 @@ config.init({
   meta: {
     name: 'javascript-hooker',
     title: 'JavaScript Hooker',
-    version: '0.2.2',
+    version: '0.2.3',
     description: 'Monkey-patch (hook) functions for debugging and stuff.',
     homepage: 'http://github.com/cowboy/javascript-hooker',
     author: '"Cowboy" Ben Alman',

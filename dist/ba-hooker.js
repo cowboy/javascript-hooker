@@ -1,10 +1,8 @@
-/* JavaScript Hooker - v0.2.2 - 11/5/2011
+/* JavaScript Hooker - v0.2.3 - 11/18/2011
  * http://github.com/cowboy/javascript-hooker
  * Copyright (c) 2011 "Cowboy" Ben Alman; Licensed MIT, GPL */
 
 (function(exports) {
-  // Since undefined can be overwritten, an internal reference is kept.
-  var undef;
   // Get an array from an array-like object with slice.call(arrayLikeObject).
   var slice = [].slice;
   // Get an "[object [[Class]]]" string with toString.call(value).
