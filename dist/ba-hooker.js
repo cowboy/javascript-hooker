@@ -1,4 +1,4 @@
-/* JavaScript Hooker - v0.2.3 - 11/18/2011
+/* JavaScript Hooker - v0.2.3 - 12/14/2011
  * http://github.com/cowboy/javascript-hooker
  * Copyright (c) 2011 "Cowboy" Ben Alman; Licensed MIT, GPL */
 
@@ -8,31 +8,39 @@
   // Get an "[object [[Class]]]" string with toString.call(value).
   var toString = {}.toString;
 
-  // I can't think of a better way to ensure a value is a specific type other
-  // than to create instances and use the `instanceof` operator.
-  function HookerOverride(v) { this.value = v; }
-  function HookerPreempt(v) { this.value = v; }
-  function HookerFilter(c, a) { this.context = c; this.args = a; }
+  // Declare base constructor as namespace
+  function Hooker() {}
+
+  // Initialize and assign static constructors
+  Hooker.Override = function(v) {
+    this.value = v;
+  };
+  Hooker.Preempt = function(v) {
+    this.value = v;
+  };
+  Hooker.Filter = function(c, a) {
+    this.context = c; this.args = a;
+  };
 
   // When a pre- or post-hook returns the result of this function, the value
   // passed will be used in place of the original function's return value. Any
   // post-hook override value will take precedence over a pre-hook override
   // value.
   exports.override = function(value) {
-    return new HookerOverride(value);
+    return new Hooker.Override(value);
   };
 
   // When a pre-hook returns the result of this function, the value passed will
   // be used in place of the original function's return value, and the original
   // function will NOT be executed.
   exports.preempt = function(value) {
-    return new HookerPreempt(value);
+    return new Hooker.Preempt(value);
   };
 
   // When a pre-hook returns the result of this function, the context and
   // arguments passed will be applied into the original function.
   exports.filter = function(context, args) {
-    return new HookerFilter(context, args);
+    return new Hooker.Filter(context, args);
   };
 
   // Execute callback(s) for properties of the specified object.
@@ -103,12 +111,12 @@
           result = options.pre.apply(this, args);
         }
 
-        if (result instanceof HookerFilter) {
+        if (result instanceof Hooker.Filter) {
           // If the pre-hook returned hooker.filter(context, args), invoke the
           // original function with that context and arguments, and store its
           // result.
           origResult = result = orig.apply(result.context, result.args);
-        } else if (result instanceof HookerPreempt) {
+        } else if (result instanceof Hooker.Preempt) {
           // If the pre-hook returned hooker.preempt(value) just use the passed
           // value and don't execute the original function.
           origResult = result = result.value;
@@ -118,7 +126,7 @@
           origResult = orig.apply(this, arguments);
           // If the pre-hook returned hooker.override(value), use the passed
           // value, otherwise use the original function's result.
-          result = result instanceof HookerOverride ? result.value : origResult;
+          result = result instanceof Hooker.Override ? result.value : origResult;
         }
 
         if (options.post) {
@@ -126,7 +134,7 @@
           // context, passing in the result of the original function as the
           // first argument, followed by any passed-in arguments.
           tmp = options.post.apply(this, [origResult].concat(args));
-          if (tmp instanceof HookerOverride) {
+          if (tmp instanceof Hooker.Override) {
             // If the post-hook returned hooker.override(value), use the passed
             // value, otherwise use the previously computed result.
             result = tmp.value;
