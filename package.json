@@ -1,0 +1,18 @@
+{
+  "author": "\"Cowboy\" Ben Alman (http://benalman.com/)",
+  "name": "hooker",
+  "description": "Monkey-patch (hook) functions for debugging and stuff.",
+  "version": "0.2.3",
+  "homepage": "http://github.com/cowboy/javascript-hooker",
+  "bugs": "https://github.com/cowboy/javascript-hooker/issues",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/cowboy/javascript-hooker.git"
+  },
+  "main": "lib/hooker",
+  "engines": {
+    "node": "~0.6.6"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

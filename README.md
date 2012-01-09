@@ -179,6 +179,6 @@ _Also, please don't edit files in the "dist" subdirectory as they are generated 
 Nothing official yet...
 
 ## License
-Copyright (c) 2011 "Cowboy" Ben Alman  
-Dual licensed under the MIT and GPL licenses.  
+Copyright (c) 2012 "Cowboy" Ben Alman  
+Licensed under the MIT license.  
 <http://benalman.com/about/license/>
