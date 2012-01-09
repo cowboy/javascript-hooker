@@ -178,7 +178,7 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 _Also, please don't edit files in the "dist" subdirectory as they are generated via grunt. You'll find source code in the "lib" subdirectory!_
 
 ## Release History
-2011/01/09 - v0.2.3 - First official release.
+2012/01/09 - v0.2.3 - First official release.
 
 ## License
 Copyright (c) 2012 "Cowboy" Ben Alman  
