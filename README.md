@@ -6,8 +6,10 @@ Monkey-patch (hook) functions for debugging and stuff.
 
 This code should work just fine in Node.js:
 
+First, install the module with: `npm install hooker`
+
 ```javascript
-var hooker = require('lib/hooker');
+var hooker = require('hooker');
 hooker.hook(Math, "max", function() {
   console.log(arguments.length + " arguments passed");
 });
@@ -97,7 +99,7 @@ arguments passed will be applied into the original function.
 See the unit tests for more examples.
 
 ```javascript
-var hooker = require('lib/hooker');
+var hooker = require('hooker');
 // Simple logging.
 hooker.hook(Math, "max", function() {
   console.log(arguments.length + " arguments passed");
