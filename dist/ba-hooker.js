@@ -1,6 +1,6 @@
-/* JavaScript Hooker - v0.2.3 - 1/9/2012
- * http://github.com/cowboy/javascript-hooker
- * Copyright (c) 2012 "Cowboy" Ben Alman; Licensed MIT */
+/*! JavaScript Hooker - v0.2.3 - 1/22/2012
+* http://github.com/cowboy/javascript-hooker
+* Copyright (c) 2012 "Cowboy" Ben Alman; Licensed MIT */
 
 (function(exports) {
   // Get an array from an array-like object with slice.call(arrayLikeObject).

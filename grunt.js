@@ -2,12 +2,11 @@
 config.init({
   pkg: '<json:package.json>',
   meta: {
-    title: 'JavaScript Hooker',
-    license: ['MIT'],
-    copyright: 'Copyright (c) 2012 "Cowboy" Ben Alman',
-    banner: '/* {{meta.title}} - v{{pkg.version}} - {{today "m/d/yyyy"}}\n' +
-            ' * {{pkg.homepage}}\n' +
-            ' * {{{meta.copyright}}}; Licensed {{join meta.license}} */'
+    name: 'JavaScript Hooker',
+    banner: '/*! <%= meta.name %> - v<%= pkg.version %> - <%= template.today("m/d/yyyy") %>\n' +
+            '* <%= pkg.homepage %>\n' +
+            '* Copyright (c) <%= template.today("yyyy") %> <%= pkg.author.name %>;' +
+            ' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */'
   },
   concat: {
     'dist/ba-hooker.js': ['<banner>', '<file_strip_banner:lib/hooker.js>']
