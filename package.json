@@ -7,7 +7,6 @@
     "name": "\"Cowboy\" Ben Alman",
     "url": "http://benalman.com/"
   },
-  "bugs": "https://github.com/cowboy/javascript-hooker/issues",
   "repository": {
     "type": "git",
     "url": "git://github.com/cowboy/javascript-hooker.git"
