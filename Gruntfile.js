@@ -5,24 +5,23 @@ module.exports = function(grunt) {
     pkg: '<json:package.json>',
     meta: {
       name: 'JavaScript Hooker',
-      banner: '/*! <%= meta.name %> - v<%= pkg.version %> - <%= grunt.template.today("m/d/yyyy") %>\n' +
-              '* <%= pkg.homepage %>\n' +
-              '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
-              ' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */'
     },
-    concat: {
+    uglify: {
+      options: {
+        banner: '/*\n' +
+                ' * Javascript Hooker\n' +
+                ' * http://github.com/cowboy/javascript-hooker\n' +
+                ' * Copyright (c) 2012 "Cowboy" Ben Alman\n' +
+                ' * Licensed under the MIT license.\n' +
+                ' */\n'
+      },
       dist: {
-        src: ['<banner>', '<file_strip_banner:lib/hooker.js>'],
-        dest: 'dist/ba-hooker.js'
+        files: {
+          'dist/ba-hooker.min.js': 'dist/ba-hooker.js'
+        }
       }
     },
-    min: {
-      dist: {
-        src: ['<banner>', 'dist/ba-hooker.js'],
-        dest: 'dist/ba-hooker.min.js'
-      }
-    },
-    test: {
+    nodeunit: {
       files: ['test/**/*.js']
     },
     lint: {
@@ -30,7 +29,7 @@ module.exports = function(grunt) {
     },
     watch: {
       files: '<config:lint.files>',
-      tasks: 'lint:files test:files'
+      tasks: 'lint:files nodeunit:files'
     },
     jshint: {
       options: {
@@ -50,10 +49,15 @@ module.exports = function(grunt) {
         module: false
       }
     },
-    uglify: {}
   });
 
+  grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-nodeunit');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-watch');
+
   // Default task.
-  grunt.registerTask('default', 'lint test concat min');
+  grunt.registerTask('default', ['lint nodeunit uglify']);
+  grunt.registerTask('test', ['lint nodeunit']);
 
 };
